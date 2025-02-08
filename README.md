@@ -1,3 +1,51 @@
+
+
+
+#!/bin/bash
+
+# GitHub SSH Key Setup Script
+echo "🔑 Checking for existing SSH keys..."
+if [ -f ~/.ssh/id_rsa.pub ]; then
+    echo "✅ SSH key already exists."
+else
+    echo "🚀 Generating a new SSH key..."
+    read -p "Enter your GitHub email: " email
+    ssh-keygen -t rsa -b 4096 -C "$email"
+    echo "✅ SSH key generated successfully."
+fi
+
+# Start the SSH agent
+echo "🔄 Starting the SSH agent..."
+eval "$(ssh-agent -s)"
+
+# Add SSH key to the agent
+echo "🔗 Adding SSH key to the agent..."
+ssh-add ~/.ssh/id_rsa
+
+# Copy SSH key to clipboard (Linux/macOS: xclip/pbcopy, Windows: clip)
+echo "📋 Copying SSH key to clipboard..."
+if command -v xclip &>/dev/null; then
+    cat ~/.ssh/id_rsa.pub | xclip -selection clipboard
+    echo "✅ SSH key copied! Paste it in GitHub SSH settings."
+elif command -v pbcopy &>/dev/null; then
+    cat ~/.ssh/id_rsa.pub | pbcopy
+    echo "✅ SSH key copied! Paste it in GitHub SSH settings."
+elif [[ "$OSTYPE" == "msys" ]]; then
+    cat ~/.ssh/id_rsa.pub | clip
+    echo "✅ SSH key copied! Paste it in GitHub SSH settings."
+else
+    echo "⚠️ Could not copy SSH key automatically. Please run:"
+    echo "cat ~/.ssh/id_rsa.pub"
+fi
+
+# Test SSH connection
+echo "🔍 Testing SSH connection with GitHub..."
+ssh -T git@github.com
+
+echo "🎉 Setup complete! Now add the SSH key to GitHub."
+echo "Go to GitHub → Settings → SSH and GPG keys → New SSH Key, and paste it."
+
+
 Here’s a step-by-step guide you can use on GitHub for setting up Git with SSH authorization on Windows and ensuring it works with both Git Bash and Windows Command Prompt:
 
 ---
